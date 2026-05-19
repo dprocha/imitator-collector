@@ -93,31 +93,43 @@ MongoDB wire-protocol versions known to work with this tool, across each support
 
 ### Symbol legend
 
-| Symbol | Meaning |
-| :----: | ------- |
-| ✅ | Confirmed working / sampling used |
-| ❌ | Confirmed working / sampling not needed |
-| — | Not tested |
+**Tested column**
+
+| Symbol | Meaning                                       |
+|:------:|-----------------------------------------------|
+|   ✅    | Verified working against this protocol version |
+|   ❌    | Not supported on this protocol version      |
+|   —    | Not tested                                    |
+
+**CollStats method column**
+
+| Symbol | Meaning                                                    |
+|:------:|------------------------------------------------------------|
+|   ✅    | Native `collStats` used — server returned accurate stats   |
+|   ❌    | `collStats` unusable — BSON sampling used instead          |
+|   —    | Not tested                                                 |
 
 ### How sampling estimation works
 
-Some distributions (notably CosmosDB RU on protocol 3.2) return `count > 0` but `avgObjSize = 0` from `collStats`. This means native storage stats are unusable. When the tool detects this condition it automatically falls back to fetching up to `collector.sampling.sample-size` BSON documents and computing average object size from them. Collections processed this way are marked `"estimated": true` in the report.
+Some distributions (notably CosmosDB RU on protocol 3.2) return `count > 0` but `avgObjSize = 0` from `collStats`. 
+When the tool detects this condition it automatically falls back to fetching up to `collector.sampling.sample-size` 
+BSON documents and computing average object size from them. Collections processed this way are marked `"estimated": true` in the report.
 
 ### Azure CosmosDB for MongoDB (RU-based)
 
-| Protocol Version | Tested | Sampling Estimation |
-| :---: | :---: | :---: |
-| 3.2 | ✅ | ✅ |
-| 3.6 | — | — |
-| 4.0 | ✅ | ❌ |
-| 4.2 | — | — |
-| 5.0 | — | — |
-| 6.0 | — | — |
-| 7.0 | ✅ | ❌ |
+| Protocol Version | Tested | CollStats method |
+| :---: | :---: |:----------------:|
+| 3.2 | ✅ |       ❌       |
+| 3.6 | — |        —         |
+| 4.0 | ✅ |         ✅       |
+| 4.2 | — |        —         |
+| 5.0 | — |        —         |
+| 6.0 | — |        —         |
+| 7.0 | ✅ |         ✅        |
 
 ### Azure CosmosDB (DocumentDB)
 
-| Protocol Version | Tested | Sampling Estimation |
+| Protocol Version | Tested | CollStats method  |
 | :---: | :---: | :---: |
 | 3.2 | — | — |
 | 3.6 | — | — |
@@ -129,7 +141,7 @@ Some distributions (notably CosmosDB RU on protocol 3.2) return `count > 0` but 
 
 ### AWS DocumentDB
 
-| Protocol Version | Tested | Sampling Estimation |
+| Protocol Version | Tested | CollStats method  |
 | :---: | :---: | :---: |
 | 3.6 | — | — |
 | 4.0 | — | — |
