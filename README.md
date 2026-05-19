@@ -32,8 +32,9 @@ Point it at your CosmosDB. Point it at your DocumentDB. Point it at anything tha
 Your leaf deserves better.
 
 ---
+# About this project
 
-A REST API that connects to MongoDB-compatible clusters (MongoDB Atlas, Azure CosmosDB, AWS DocumentDB) and provides two capabilities:
+A REST API that connects to MongoDB-compatible clusters (Azure CosmosDB, AWS DocumentDB and also on MongoDB) and provides two capabilities:
 
 1. **Sizing** — collects per-collection storage statistics to estimate the cost of migrating to MongoDB Atlas
 2. **Schema extraction** — samples documents from each collection, infers a JSON Schema, and generates anonymised example documents for schema review
