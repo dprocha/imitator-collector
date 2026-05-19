@@ -1,5 +1,9 @@
 # imitator-collector
 
+<p align="center">
+  <img src="images/wilted_leaf_mongodb.png" alt="imitator-collector logo" width="320">
+</p>
+
 A REST API that connects to MongoDB-compatible clusters (MongoDB Atlas, Azure CosmosDB, AWS DocumentDB) and provides two capabilities:
 
 1. **Sizing** — collects per-collection storage statistics to estimate the cost of migrating to MongoDB Atlas
@@ -465,43 +469,135 @@ All three endpoints accept the same request body.
 
 ---
 
-## Sizing output format
+## Complete request and response examples
+
+### `POST /api/sizing/collect`
+
+**Request:**
 
 ```json
 {
-  "dateCreate": "2026-04-22T20:00:00.000Z",
+  "clusters": [
+    {
+      "name": "prod",
+      "connectionString": "mongodb+srv://admin:secret@prod.example.mongodb.net",
+      "databases": [
+        {
+          "name": "ecommerce",
+          "collections": ["orders", "products"]
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Response (`200 OK`):**
+
+```json
+{
+  "dateCreate": "2026-05-19T12:00:00.000Z",
   "clusters": [
     {
       "name": "prod",
       "version": "7.0.15",
       "estimated": false,
       "clusterStats": {
-        "totalDatabases": 2,
-        "totalCollections": 12,
-        "totalDocuments": 1500000,
-        "totalIndex": 10,
-        "totalDataSizeB": 3552902016,
-        "totalDataSizeKB": 3552902.02,
-        "totalDataSizeMB": 3552.91,
-        "totalDataSizeGB": 3.56,
-        "totalDataSizeTB": 0.004,
-        "totalIndexSizeB": 52428800,
-        "totalIndexSizeKB": 52428.8,
-        "totalIndexSizeMB": 52.43,
-        "totalIndexSizeGB": 0.05,
+        "totalDatabases": 1,
+        "totalCollections": 2,
+        "totalDocuments": 501000,
+        "totalIndex": 5,
+        "totalDataSizeB": 392000768,
+        "totalDataSizeKB": 392000.77,
+        "totalDataSizeMB": 392.0,
+        "totalDataSizeGB": 0.39,
+        "totalDataSizeTB": 0.0,
+        "totalIndexSizeB": 20971520,
+        "totalIndexSizeKB": 20971.52,
+        "totalIndexSizeMB": 20.97,
+        "totalIndexSizeGB": 0.02,
         "totalIndexSizeTB": 0.0
       },
-      "databases": [...]
+      "databases": [
+        {
+          "name": "ecommerce",
+          "dbStats": {
+            "totalCollections": 2,
+            "totalDocuments": 501000,
+            "totalIndex": 5,
+            "totalDataSize": 392000768,
+            "totalIndexSize": 20971520
+          },
+          "collections": [
+            {
+              "name": "orders",
+              "collStats": {
+                "count": 500000,
+                "avgObjSize": 768,
+                "dataSize": 384000000,
+                "totalIndex": 3,
+                "totalIndexSize": 12582912,
+                "indexes": [
+                  { "name": "_id_",     "size": 4194304, "key": { "_id": 1 },    "unique": true  },
+                  { "name": "userId_1", "size": 4194304, "key": { "userId": 1 }, "unique": false },
+                  { "name": "status_1", "size": 4194304, "key": { "status": 1 }, "unique": false }
+                ],
+                "estimated": false
+              }
+            },
+            {
+              "name": "products",
+              "collStats": {
+                "count": 1000,
+                "avgObjSize": 8000,
+                "dataSize": 8000768,
+                "totalIndex": 2,
+                "totalIndexSize": 8388608,
+                "indexes": [
+                  { "name": "_id_",  "size": 4194304, "key": { "_id": 1 }, "unique": true },
+                  { "name": "sku_1", "size": 4194304, "key": { "sku": 1 }, "unique": true }
+                ],
+                "estimated": false
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
 ```
 
-## Schema output format
+> `"estimated": true` at the cluster level means at least one collection fell back to BSON sampling — see [Understanding metrics](#understanding-metrics-vs-cloud-portal-figures).
+
+---
+
+### `POST /api/schema/extract`
+
+**Request:**
 
 ```json
 {
-  "dateCreate": "2026-04-22T20:00:00.000Z",
+  "clusters": [
+    {
+      "name": "prod",
+      "connectionString": "mongodb+srv://admin:secret@prod.example.mongodb.net",
+      "databases": [
+        {
+          "name": "ecommerce",
+          "collections": ["orders"]
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Response (`200 OK`):**
+
+```json
+{
+  "dateCreate": "2026-05-19T12:00:00.000Z",
   "clusters": [
     {
       "name": "prod",
@@ -518,30 +614,54 @@ All three endpoints accept the same request body.
                 "title": "orders",
                 "type": "object",
                 "properties": {
-                  "_id":       { "type": "string", "format": "objectid" },
-                  "userId":    { "type": "string", "format": "objectid" },
-                  "status":    { "type": "string" },
-                  "total":     { "type": "number" },
-                  "createdAt": { "type": "string", "format": "date-time" },
-                  "items":     {
+                  "_id":       { "type": "string",            "format": "objectid"   },
+                  "userId":    { "type": "string",            "format": "objectid"   },
+                  "status":    { "type": "string"                                    },
+                  "total":     { "type": "number"                                    },
+                  "discount":  { "type": ["number", "null"]                          },
+                  "createdAt": { "type": "string",            "format": "date-time"  },
+                  "items": {
                     "type": "array",
                     "items": {
                       "type": "object",
                       "properties": {
-                        "productId": { "type": "string", "format": "objectid" },
-                        "qty":       { "type": "integer" }
+                        "productId": { "type": "string",  "format": "objectid" },
+                        "name":      { "type": "string"                        },
+                        "qty":       { "type": "integer"                       },
+                        "price":     { "type": "number"                        }
                       }
+                    }
+                  },
+                  "shippingAddress": {
+                    "type": "object",
+                    "properties": {
+                      "street": { "type": "string" },
+                      "city":   { "type": "string" },
+                      "zip":    { "type": "string" }
                     }
                   }
                 }
               },
               "exampleDocument": {
-                "_id": "000000000000000000000000",
+                "_id":    "000000000000000000000000",
                 "userId": "000000000000000000000000",
-                "status": "3f2a1c4e-...",
-                "total": 0.0,
+                "status": "3f2a1c4e-7b88-4d1a-9c05-1e2f3a4b5c6d",
+                "total":  0.0,
+                "discount": null,
                 "createdAt": "1970-01-01T00:00:00.000Z",
-                "items": [{ "productId": "000000000000000000000000", "qty": 0 }]
+                "items": [
+                  {
+                    "productId": "000000000000000000000000",
+                    "name":  "a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+                    "qty":   0,
+                    "price": 0.0
+                  }
+                ],
+                "shippingAddress": {
+                  "street": "b2c3d4e5-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+                  "city":   "c3d4e5f6-7a8b-9c0d-1e2f-3a4b5c6d7e8f",
+                  "zip":    "d4e5f6a7-8b9c-0d1e-2f3a-4b5c6d7e8f9a"
+                }
               }
             }
           ]
@@ -552,16 +672,45 @@ All three endpoints accept the same request body.
 }
 ```
 
-| Field | Description |
+| Schema annotation | Meaning |
 |---|---|
-| `sampleSize` | Number of documents actually sampled |
-| `jsonSchema` | JSON Schema Draft 2020-12 inferred from the sample |
-| `jsonSchema.properties[*].format` | `objectid` for ObjectId, `date-time` for Date, `byte` for Binary |
-| `exampleDocument` | Structure-preserving anonymised document — every leaf replaced with a fake value |
+| `"type": ["number", "null"]` | Field was absent or null in at least one sampled document |
+| `"format": "objectid"` | BSON ObjectId — 24-character hex string |
+| `"format": "date-time"` | BSON Date — ISO-8601 string |
+| `"format": "byte"` | BSON Binary — base64 string |
+
+---
+
+### `POST /api/schema/export`
+
+**Request:** identical structure to `/api/schema/extract`.
+
+**Response (`200 OK`):** binary ZIP file.
+
+```
+Content-Type: application/zip
+Content-Disposition: attachment; filename="schema.zip"
+```
+
+**ZIP directory layout** (for the request example above):
+
+```
+prod/
+└── ecommerce/
+    └── orders/
+        ├── schema.json    ← JSON Schema Draft 2020-12 (same content as jsonSchema above)
+        └── sample.json    ← anonymised example document (same content as exampleDocument above)
+```
+
+Characters outside `[a-zA-Z0-9._-]` in cluster, database, and collection names are replaced with underscores in the ZIP entry paths.
 
 ---
 
 ## Understanding metrics vs cloud portal figures
+
+<p align="center">
+  <img src="images/wilted_leaf_mongodb.png" alt="Wilted MongoDB leaf: 'I used to be MongoDB... now I'm just another DocumentDB / CosmosDB knockoff'" width="480">
+</p>
 
 The numbers this tool reports will **not** match what Azure CosmosDB (or similar managed services) show in their portals. This is expected and intentional.
 
