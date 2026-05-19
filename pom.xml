@@ -11,13 +11,13 @@
 
     <groupId>io.diegorocha</groupId>
     <artifactId>imitator-collector</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
 
     <scm>
         <connection>scm:git:git@github.com:dprocha/imitator-collector.git</connection>
         <developerConnection>scm:git:git@github.com:dprocha/imitator-collector.git</developerConnection>
         <url>https://github.com/dprocha/imitator-collector</url>
-        <tag>v1.0.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
