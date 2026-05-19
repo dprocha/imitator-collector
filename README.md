@@ -4,6 +4,35 @@
   <img src="images/wilted_leaf_mongodb.png" alt="imitator-collector logo" width="320">
 </p>
 
+---
+
+> *A true story. Probably.*
+
+Once upon a time, a developer deployed MongoDB to production.
+Life was good. Queries were fast. `collStats` returned real numbers. Indexes made sense.
+
+Then, one fateful Tuesday, a cloud architect said the four most dangerous words in software engineering:
+
+**"Let's just use CosmosDB or DocumentDB."**
+
+Suddenly, `listCollections` started returning a collection named `"lection"`. Index sizes were all zero — except for a mysterious `DocumentDBDefaultIndex_1` that appeared on every collection, indexed every field on the planet, and yet somehow reported a size of `0 bytes`. The Azure Portal claimed you were using **47 GB of storage**. Your `collStats` said **11 GB**. Nobody knew who was lying. The portal wasn't talking.
+
+The driver threw `"Range [X, Y) out of bounds"` for no reason. Wire protocol 3.2 did not support feelings.
+
+Your MongoDB leaf, once proud and green, began to wilt.
+
+---
+
+**imitator-collector** is the rescue team.
+
+It speaks wire protocol 3.2. It ignores the phantom collection. It excludes the wildcard index that has no Atlas equivalent. It samples your documents when the stats come back empty. It tells you, in plain bytes, exactly how much real data you have — so you can finally escape to **MongoDB Atlas**, where `collStats` tells the truth and leaves stay green.
+
+Point it at your CosmosDB. Point it at your DocumentDB. Point it at anything that *claims* to be MongoDB. It will collect the sizing report and the JSON Schemas you need to plan your migration, and it will do it without throwing `"Range [X, Y) out of bounds"` at you.
+
+Your leaf deserves better.
+
+---
+
 A REST API that connects to MongoDB-compatible clusters (MongoDB Atlas, Azure CosmosDB, AWS DocumentDB) and provides two capabilities:
 
 1. **Sizing** — collects per-collection storage statistics to estimate the cost of migrating to MongoDB Atlas
