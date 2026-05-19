@@ -87,6 +87,56 @@ The server starts on port **8081**.
 
 ---
 
+## Compatibility
+
+MongoDB wire-protocol versions known to work with this tool, across each supported distribution.
+
+### Symbol legend
+
+| Symbol | Meaning |
+| :----: | ------- |
+| ✅ | Confirmed working / sampling used |
+| ❌ | Confirmed working / sampling not needed |
+| — | Not tested |
+
+### How sampling estimation works
+
+Some distributions (notably CosmosDB RU on protocol 3.2) return `count > 0` but `avgObjSize = 0` from `collStats`. This means native storage stats are unusable. When the tool detects this condition it automatically falls back to fetching up to `collector.sampling.sample-size` BSON documents and computing average object size from them. Collections processed this way are marked `"estimated": true` in the report.
+
+### Azure CosmosDB for MongoDB (RU-based)
+
+| Protocol Version | Tested | Sampling Estimation |
+| :---: | :---: | :---: |
+| 3.2 | ✅ | ✅ |
+| 3.6 | — | — |
+| 4.0 | ✅ | ❌ |
+| 4.2 | — | — |
+| 5.0 | — | — |
+| 6.0 | — | — |
+| 7.0 | ✅ | ❌ |
+
+### Azure CosmosDB (DocumentDB)
+
+| Protocol Version | Tested | Sampling Estimation |
+| :---: | :---: | :---: |
+| 3.2 | — | — |
+| 3.6 | — | — |
+| 4.0 | — | — |
+| 4.2 | — | — |
+| 5.0 | — | — |
+| 6.0 | — | — |
+| 7.0 | — | — |
+
+### AWS DocumentDB
+
+| Protocol Version | Tested | Sampling Estimation |
+| :---: | :---: | :---: |
+| 3.6 | — | — |
+| 4.0 | — | — |
+| 5.0 | — | — |
+
+---
+
 ## Using the API
 
 Both endpoints accept the same JSON input format. The typical workflow is:
