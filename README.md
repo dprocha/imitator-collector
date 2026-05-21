@@ -46,25 +46,19 @@ Supports MongoDB server versions **3.2 through 8.x**.
 ## Requirements
 
 - Java 26+
-- Maven 3.9+ (or use the included `./mvnw` wrapper)
 - Network access to the target MongoDB cluster
+- Maven 3.9+ (or use the included `./mvnw` wrapper) — only needed if building from source
 
-## Building
+## Download
+
+The easiest way to get started is to download the pre-built JAR from the [Releases page](https://github.com/dprocha/imitator-collector/releases/latest):
+
+1. Go to the [latest release](https://github.com/dprocha/imitator-collector/releases/latest)
+2. Download `imitator-collector-<version>.jar` from the **Assets** section
+3. Run it:
 
 ```bash
-./mvnw clean package
-```
-
-Produces a runnable JAR at `target/imitator-collectorInput-0.0.1-SNAPSHOT.jar`.
-
-## Running
-
-```bash
-# Development
-./mvnw spring-boot:run
-
-# Production
-java -jar target/imitator-collectorInput-0.0.1-SNAPSHOT.jar
+java -jar imitator-collector-<version>.jar
 ```
 
 The server starts on port **8081**.
@@ -74,8 +68,28 @@ The server starts on port **8081**.
 > `-Xmx1g` up to ~10,000 collections; `-Xmx2g` for anything larger.
 >
 > ```bash
-> java -Xmx1g -jar target/imitator-collectorInput-0.0.1-SNAPSHOT.jar
+> java -Xmx1g -jar imitator-collector-<version>.jar
 > ```
+
+## Building from source
+
+```bash
+./mvnw clean package
+```
+
+Produces a runnable JAR at `target/imitator-collector-<version>.jar`.
+
+## Running from source
+
+```bash
+# Development
+./mvnw spring-boot:run
+
+# Production
+java -jar target/imitator-collector-<version>.jar
+```
+
+The server starts on port **8081**.
 
 | URL | Description |
 |---|---|
