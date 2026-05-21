@@ -1,13 +1,13 @@
 package io.diegorocha.imitator.collector;
 
 import com.mongodb.client.MongoClient;
+import io.diegorocha.imitator.config.CollectorProperties;
 import io.diegorocha.imitator.exception.CollectorException;
 import io.diegorocha.imitator.model.input.ClusterInput;
 import io.diegorocha.imitator.model.input.DatabaseInput;
 import io.diegorocha.imitator.model.output.ClusterOutput;
 import io.diegorocha.imitator.model.output.ClusterStats;
 import io.diegorocha.imitator.model.output.DatabaseOutput;
-import io.diegorocha.imitator.config.CollectorProperties;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

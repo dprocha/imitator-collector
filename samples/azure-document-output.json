@@ -1,0 +1,293 @@
+{
+  "dateCreate": "2026-05-20T13:28:16.383667Z",
+  "clusters": [
+    {
+      "name": "azure-documentdb-5",
+      "version": "5.0.0",
+      "estimated": false,
+      "clusterStats": {
+        "totalDatabases": 1,
+        "totalCollections": 1,
+        "totalDocuments": 1000000,
+        "totalIndex": 6,
+        "totalDataSizeB": 2893000000,
+        "totalDataSizeKB": 2893000,
+        "totalDataSizeMB": 2893,
+        "totalDataSizeGB": 2.89,
+        "totalDataSizeTB": 0,
+        "totalIndexSizeB": 477880320,
+        "totalIndexSizeKB": 477880.32,
+        "totalIndexSizeMB": 477.88,
+        "totalIndexSizeGB": 0.48,
+        "totalIndexSizeTB": 0
+      },
+      "databases": [
+        {
+          "name": "sizer",
+          "dbStats": {
+            "totalCollections": 1,
+            "totalDocuments": 1000000,
+            "totalIndex": 6,
+            "totalDataSize": 2893000000,
+            "totalIndexSize": 477880320
+          },
+          "collections": [
+            {
+              "name": "customers",
+              "collStats": {
+                "count": 1000000,
+                "avgObjSize": 2893,
+                "dataSize": 2893000000,
+                "totalIndex": 6,
+                "totalIndexSize": 477880320,
+                "indexes": [
+                  {
+                    "name": "_id_",
+                    "size": 73072640,
+                    "key": {
+                      "_id": 1
+                    },
+                    "unique": false
+                  },
+                  {
+                    "name": "customer_cpf",
+                    "size": 120356864,
+                    "key": {
+                      "cpf": 1
+                    },
+                    "unique": false
+                  },
+                  {
+                    "name": "customer_vuc_code",
+                    "size": 120995840,
+                    "key": {
+                      "vucCode": 1
+                    },
+                    "unique": false
+                  },
+                  {
+                    "name": "customer_legacyId",
+                    "size": 70017024,
+                    "key": {
+                      "brandData.legacyId": 1
+                    },
+                    "unique": false
+                  },
+                  {
+                    "name": "customer_oldCustomerId",
+                    "size": 88260608,
+                    "key": {
+                      "brandData.oldCustomerId": 1
+                    },
+                    "unique": false
+                  },
+                  {
+                    "name": "customer_email",
+                    "size": 5177344,
+                    "key": {
+                      "brandData.contactData.email.address": 1
+                    },
+                    "unique": false
+                  }
+                ],
+                "estimated": false
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "azure-documentdb-6",
+      "version": "6.0.0",
+      "estimated": false,
+      "clusterStats": {
+        "totalDatabases": 1,
+        "totalCollections": 1,
+        "totalDocuments": 1000000,
+        "totalIndex": 6,
+        "totalDataSizeB": 2853000000,
+        "totalDataSizeKB": 2853000,
+        "totalDataSizeMB": 2853,
+        "totalDataSizeGB": 2.85,
+        "totalDataSizeTB": 0,
+        "totalIndexSizeB": 465567744,
+        "totalIndexSizeKB": 465567.74,
+        "totalIndexSizeMB": 465.57,
+        "totalIndexSizeGB": 0.47,
+        "totalIndexSizeTB": 0
+      },
+      "databases": [
+        {
+          "name": "sizer",
+          "dbStats": {
+            "totalCollections": 1,
+            "totalDocuments": 1000000,
+            "totalIndex": 6,
+            "totalDataSize": 2853000000,
+            "totalIndexSize": 465567744
+          },
+          "collections": [
+            {
+              "name": "customers",
+              "collStats": {
+                "count": 1000000,
+                "avgObjSize": 2853,
+                "dataSize": 2853000000,
+                "totalIndex": 6,
+                "totalIndexSize": 465567744,
+                "indexes": [
+                  {
+                    "name": "_id_",
+                    "size": 68771840,
+                    "key": {
+                      "_id": 1
+                    },
+                    "unique": false
+                  },
+                  {
+                    "name": "customer_cpf",
+                    "size": 119652352,
+                    "key": {
+                      "cpf": 1
+                    },
+                    "unique": false
+                  },
+                  {
+                    "name": "customer_vuc_code",
+                    "size": 118767616,
+                    "key": {
+                      "vucCode": 1
+                    },
+                    "unique": false
+                  },
+                  {
+                    "name": "customer_legacyId",
+                    "size": 68706304,
+                    "key": {
+                      "brandData.legacyId": 1
+                    },
+                    "unique": false
+                  },
+                  {
+                    "name": "customer_oldCustomerId",
+                    "size": 84557824,
+                    "key": {
+                      "brandData.oldCustomerId": 1
+                    },
+                    "unique": false
+                  },
+                  {
+                    "name": "customer_email",
+                    "size": 5111808,
+                    "key": {
+                      "brandData.contactData.email.address": 1
+                    },
+                    "unique": false
+                  }
+                ],
+                "estimated": false
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "azure-documentdb-7",
+      "version": "7.0.0",
+      "estimated": false,
+      "clusterStats": {
+        "totalDatabases": 1,
+        "totalCollections": 1,
+        "totalDocuments": 1000000,
+        "totalIndex": 6,
+        "totalDataSizeB": 2853000000,
+        "totalDataSizeKB": 2853000,
+        "totalDataSizeMB": 2853,
+        "totalDataSizeGB": 2.85,
+        "totalDataSizeTB": 0,
+        "totalIndexSizeB": 472268800,
+        "totalIndexSizeKB": 472268.8,
+        "totalIndexSizeMB": 472.27,
+        "totalIndexSizeGB": 0.47,
+        "totalIndexSizeTB": 0
+      },
+      "databases": [
+        {
+          "name": "sizer",
+          "dbStats": {
+            "totalCollections": 1,
+            "totalDocuments": 1000000,
+            "totalIndex": 6,
+            "totalDataSize": 2853000000,
+            "totalIndexSize": 472268800
+          },
+          "collections": [
+            {
+              "name": "customers",
+              "collStats": {
+                "count": 1000000,
+                "avgObjSize": 2853,
+                "dataSize": 2853000000,
+                "totalIndex": 6,
+                "totalIndexSize": 472268800,
+                "indexes": [
+                  {
+                    "name": "_id_",
+                    "size": 74850304,
+                    "key": {
+                      "_id": 1
+                    },
+                    "unique": false
+                  },
+                  {
+                    "name": "customer_cpf",
+                    "size": 118218752,
+                    "key": {
+                      "cpf": 1
+                    },
+                    "unique": false
+                  },
+                  {
+                    "name": "customer_vuc_code",
+                    "size": 118448128,
+                    "key": {
+                      "vucCode": 1
+                    },
+                    "unique": false
+                  },
+                  {
+                    "name": "customer_legacyId",
+                    "size": 68419584,
+                    "key": {
+                      "brandData.legacyId": 1
+                    },
+                    "unique": false
+                  },
+                  {
+                    "name": "customer_oldCustomerId",
+                    "size": 87212032,
+                    "key": {
+                      "brandData.oldCustomerId": 1
+                    },
+                    "unique": false
+                  },
+                  {
+                    "name": "customer_email",
+                    "size": 5120000,
+                    "key": {
+                      "brandData.contactData.email.address": 1
+                    },
+                    "unique": false
+                  }
+                ],
+                "estimated": false
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
