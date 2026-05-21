@@ -2,12 +2,12 @@ package io.diegorocha.imitator.collector;
 
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoDatabase;
+import io.diegorocha.imitator.config.CollectorProperties;
 import io.diegorocha.imitator.model.input.DatabaseInput;
 import io.diegorocha.imitator.model.output.CollectionOutput;
 import io.diegorocha.imitator.model.output.DatabaseOutput;
 import io.diegorocha.imitator.model.output.DbStats;
 import org.bson.Document;
-import io.diegorocha.imitator.config.CollectorProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
