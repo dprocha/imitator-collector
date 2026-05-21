@@ -39,3 +39,4 @@ build/
 *.log
 CLAUDE.md
 .claude
+/samples

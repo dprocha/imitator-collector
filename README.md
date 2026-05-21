@@ -119,33 +119,31 @@ BSON documents and computing average object size from them. Collections processe
 
 | Protocol Version | Tested | CollStats method |
 | :---: | :---: |:----------------:|
-| 3.2 | ✅ |       ❌       |
-| 3.6 | — |        —         |
-| 4.0 | ✅ |         ✅       |
-| 4.2 | — |        —         |
-| 5.0 | — |        —         |
-| 6.0 | — |        —         |
-| 7.0 | ✅ |         ✅        |
+| 3.2 | ✅ |        ❌         |
+| 3.6 | ✅ |        ✅         |
+| 4.0 | ✅ |        ✅         |
+| 4.2 | ✅ |        ✅         |
+| 5.0 | ✅|         ✅        |
+| 6.0 | ✅ |        ✅         |
+| 7.0 | ✅ |        ✅         |
 
 ### Azure CosmosDB (DocumentDB)
 
-| Protocol Version | Tested | CollStats method  |
-| :---: | :---: | :---: |
-| 3.2 | — | — |
-| 3.6 | — | — |
-| 4.0 | — | — |
-| 4.2 | — | — |
-| 5.0 | — | — |
-| 6.0 | — | — |
-| 7.0 | — | — |
+| Protocol Version | Tested | CollStats method |
+|:----------------:| :---: |:----------------:|
+|       5.0        | ✅ |        ✅         |
+|       6.0        | ✅ |        ✅         |
+|       7.0        | ✅ |        ✅         |
+|       8.0        | ✅ |        ✅         |
 
 ### AWS DocumentDB
 
 | Protocol Version | Tested | CollStats method  |
-| :---: | :---: | :---: |
-| 3.6 | — | — |
-| 4.0 | — | — |
-| 5.0 | — | — |
+|:----------------:|:------:| :---: |
+|       3.6        |   ✅    |  ✅ |
+|       4.0        |   ✅    |  ✅ |
+|       5.0        |   ✅    | ✅|
+|       8.0        |    ✅   | ✅ |
 
 ---
 
