@@ -881,7 +881,7 @@ The tool's raw BSON sizes are the **correct baseline for Atlas migration estimat
 ## Package structure
 
 ```
-io.diegorocha.imitator.collector
+io.diegorocha.imitator
 ├── api/            — REST controllers (SizingController, SchemaController)
 ├── service/        — Orchestration (CollectorService, SchemaService)
 ├── collector/      — MongoDB interaction (ClusterCollector, DatabaseCollector,
