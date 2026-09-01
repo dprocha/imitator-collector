@@ -101,6 +101,26 @@ The server starts on port **8081**.
 
 ---
 
+## Testing
+
+```bash
+./mvnw test
+```
+
+`SizingControllerAtlasTest` is an integration test that calls the real sizing API against a live **MongoDB Atlas** cluster: it seeds an `imitator` database with 100 randomly-named collections (5 indexes each), runs `POST /api/sizing/collect` against it, verifies every collection and index comes back sized, and cleans up afterwards.
+
+To run it, create `src/test/resources/application-test.properties` (git-ignored — never commit real credentials) with:
+
+```properties
+MONGODB_URI=mongodb+srv://<user>:<password>@<host>/imitator
+```
+
+The cluster must run MongoDB **3.2–8.x** — the pinned driver (`mongodb-driver-sync:3.12.9`) cannot complete the connection handshake against MongoDB 9.0+.
+
+Each run saves the full sizing response as pretty-printed JSON under `test-output/sizing/` (git-ignored) for manual inspection.
+
+---
+
 ## Compatibility
 
 MongoDB wire-protocol versions known to work with this tool, across each supported distribution.
