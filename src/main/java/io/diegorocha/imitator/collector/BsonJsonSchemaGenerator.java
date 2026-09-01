@@ -50,7 +50,7 @@ class BsonJsonSchemaGenerator {
     private ObjectNode buildProperties(List<Document> docs) {
         Map<String, List<Object>> byField = new LinkedHashMap<>();
         for (Document doc : docs) {
-            doc.forEach((k, v) -> byField.computeIfAbsent(k, _ -> new ArrayList<>()).add(v));
+            doc.forEach((k, v) -> byField.computeIfAbsent(k, ignoredKey -> new ArrayList<>()).add(v));
         }
         ObjectNode props = jsonMapper.createObjectNode();
         byField.forEach((field, values) -> props.set(field, fieldSchema(values)));
@@ -105,7 +105,7 @@ class BsonJsonSchemaGenerator {
     // "string" covers ObjectId, Date, Binary, UUID, and actual String values.
     // Apply a format hint for the non-string BSON types so consumers know the encoding.
     private void applyStringFormat(ObjectNode schema, List<Object> values) {
-        Object representative = values.getFirst();
+        Object representative = values.get(0);
         if (representative instanceof Date) {
             schema.put("format", "date-time");
         } else if (representative instanceof Binary) {
@@ -126,15 +126,14 @@ class BsonJsonSchemaGenerator {
                 .orElse("string");
     }
 
+    // Java 17 has no pattern matching for switch — an instanceof chain replaces it.
     private String toJsonType(Object value) {
         if (value == null) return "null";
-        return switch (value) {
-            case Boolean _              -> "boolean";
-            case Integer _, Long _      -> "integer";
-            case Double _, Decimal128 _ -> "number";
-            case Document _             -> "object";
-            case List<?> _              -> "array";
-            default                     -> "string"; // String, ObjectId, Date, Binary
-        };
+        if (value instanceof Boolean) return "boolean";
+        if (value instanceof Integer || value instanceof Long) return "integer";
+        if (value instanceof Double || value instanceof Decimal128) return "number";
+        if (value instanceof Document) return "object";
+        if (value instanceof List<?>) return "array";
+        return "string"; // String, ObjectId, Date, Binary
     }
 }

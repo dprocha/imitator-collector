@@ -24,8 +24,8 @@ import java.util.concurrent.Future;
  * Collects sizing statistics for all collections in a single MongoDB database.
  * <p>Enumerates collections via {@code runCommand({listCollections: 1})} and
  * {@link CursorHelper#exhaustCursor}, then dispatches each collection to
- * {@link CollectionCollector} on a virtual thread for concurrent collection. CosmosDB phantom
- * collections and {@code system.*} collections are excluded before dispatch.</p>
+ * {@link CollectionCollector} on a bounded thread pool for concurrent collection. CosmosDB
+ * phantom collections and {@code system.*} collections are excluded before dispatch.</p>
  *
  * @author Diego Rocha
  * @since 1.0.0
@@ -38,17 +38,19 @@ public class DatabaseCollector {
     private final CollectionCollector collectionCollector;
     // L1: loaded from CollectorProperties so they can be overridden without a code change
     private final Set<String> phantomCollections;
+    private final int threadPoolSize;
 
     public DatabaseCollector(CollectionCollector collectionCollector, CollectorProperties properties) {
         this.collectionCollector = collectionCollector;
         this.phantomCollections = properties.cosmosdb().phantomCollectionsAsSet();
+        this.threadPoolSize = properties.concurrency().threadPoolSize();
     }
 
     public DatabaseOutput collect(MongoDatabase db, DatabaseInput databaseInput,
                                   ClusterCollector.ServerVersion serverVersion) {
         List<String> collectionNames = getCollectionNames(db, databaseInput);
         log.debug("Database '{}' — {} collection(s) to collect", db.getName(), collectionNames.size());
-        // M5: collections within a database are collected concurrently using virtual threads
+        // M5: collections within a database are collected concurrently on a bounded thread pool
         List<CollectionOutput> collections = collectCollectionsConcurrently(db, collectionNames, serverVersion);
 
         DbStats dbStats = new DbStats(
@@ -63,11 +65,14 @@ public class DatabaseCollector {
         return new DatabaseOutput(db.getName(), dbStats, collections);
     }
 
-    // M5: each collection is collected on its own virtual thread; failures are logged and skipped
+    // M5: collections are collected on a bounded thread pool; failures are logged and skipped
     private List<CollectionOutput> collectCollectionsConcurrently(MongoDatabase db, List<String> names,
                                                                    ClusterCollector.ServerVersion serverVersion) {
         List<CollectionOutput> collections = new ArrayList<>();
-        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+        // L2: ExecutorService only implements AutoCloseable since Java 19 — Java 17 needs
+        // an explicit shutdown() in a finally block instead of try-with-resources.
+        ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
+        try {
             List<Future<CollectionOutput>> futures = names.stream()
                     .filter(name -> !name.startsWith("system."))
                     .map(name -> executor.submit(() -> {
@@ -92,6 +97,8 @@ public class DatabaseCollector {
                     // already logged inside the task with the collection name
                 }
             }
+        } finally {
+            executor.shutdown();
         }
         return collections;
     }

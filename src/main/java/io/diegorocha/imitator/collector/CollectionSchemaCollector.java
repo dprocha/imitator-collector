@@ -48,7 +48,7 @@ public class CollectionSchemaCollector {
         }
         log.debug("Sampled {} document(s) from '{}.{}' for schema extraction",
                 samples.size(), db.getName(), collectionName);
-        Map<String, Object> example = samples.isEmpty() ? Map.of() : anonymize(samples.getFirst());
+        Map<String, Object> example = samples.isEmpty() ? Map.of() : anonymize(samples.get(0));
         return new CollectionSchema(collectionName, samples.size(),
                 schemaGenerator.generate(collectionName, samples), example);
     }
@@ -65,27 +65,26 @@ public class CollectionSchemaCollector {
         return result;
     }
 
+    // Java 17 has no pattern matching for switch — an instanceof chain replaces it.
     private Object anonymizeValue(Object value) {
         if (value == null) return null;
-        return switch (value) {
-            case String _       -> UUID.randomUUID().toString();
-            case Integer _      -> 0;
-            case Long _         -> 0L;
-            case Double _       -> 0.0;
-            case Boolean _      -> false;
-            case Date _         -> "1970-01-01T00:00:00.000Z";
-            case ObjectId _     -> "000000000000000000000000";
-            case Decimal128 _   -> "0";
-            case Binary _       -> "";
-            case Document d     -> anonymize(d);
-            case List<?> l      -> anonymizeArray(l);
-            default             -> "";
-        };
+        if (value instanceof String) return UUID.randomUUID().toString();
+        if (value instanceof Integer) return 0;
+        if (value instanceof Long) return 0L;
+        if (value instanceof Double) return 0.0;
+        if (value instanceof Boolean) return false;
+        if (value instanceof Date) return "1970-01-01T00:00:00.000Z";
+        if (value instanceof ObjectId) return "000000000000000000000000";
+        if (value instanceof Decimal128) return "0";
+        if (value instanceof Binary) return "";
+        if (value instanceof Document d) return anonymize(d);
+        if (value instanceof List<?> l) return anonymizeArray(l);
+        return "";
     }
 
     // Retains one element to show the array item structure without exposing real data.
     private List<Object> anonymizeArray(List<?> array) {
         if (array.isEmpty()) return List.of();
-        return List.of(anonymizeValue(array.getFirst()));
+        return List.of(anonymizeValue(array.get(0)));
     }
 }

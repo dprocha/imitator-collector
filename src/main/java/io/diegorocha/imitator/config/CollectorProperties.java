@@ -16,13 +16,15 @@ import java.util.Set;
  * @param mongo             MongoDB connection timeout settings
  * @param sampling          sampling-based estimation settings
  * @param cosmosdb          CosmosDB-specific compatibility filters
+ * @param concurrency       thread pool sizing for concurrent database/collection collection
  * @param internalDatabases databases always excluded from collection regardless of input
  *
  * @author Diego Rocha
  * @since 1.0.0
  */
 @ConfigurationProperties(prefix = "collector")
-public record CollectorProperties(Mongo mongo, Sampling sampling, CosmosDb cosmosdb, List<String> internalDatabases) {
+public record CollectorProperties(Mongo mongo, Sampling sampling, CosmosDb cosmosdb, Concurrency concurrency,
+                                   List<String> internalDatabases) {
 
     public CollectorProperties {
         mongo = mongo != null ? mongo : new Mongo(10, 60, 10);
@@ -30,6 +32,7 @@ public record CollectorProperties(Mongo mongo, Sampling sampling, CosmosDb cosmo
         cosmosdb = cosmosdb != null ? cosmosdb : new CosmosDb(
                 List.of("DocumentDBDefaultIndex_1"),
                 List.of("lection"));
+        concurrency = concurrency != null ? concurrency : new Concurrency(20);
         internalDatabases = internalDatabases != null
                 ? List.copyOf(internalDatabases)
                 : List.of("admin", "local", "config");
@@ -52,6 +55,19 @@ public record CollectorProperties(Mongo mongo, Sampling sampling, CosmosDb cosmo
     public record Sampling(int sampleSize) {
         public Sampling {
             sampleSize = sampleSize > 0 ? sampleSize : 50;
+        }
+    }
+
+    /**
+     * Thread pool sizing for concurrent database/collection collection.
+     * <p>Java 17 has no virtual threads, so each database (and, within it, each collection)
+     * is collected on a bounded {@link java.util.concurrent.ExecutorService} instead of one
+     * thread per task. {@code threadPoolSize} caps how many databases/collections are collected
+     * concurrently per cluster request; excess tasks queue rather than spawning new threads.</p>
+     */
+    public record Concurrency(int threadPoolSize) {
+        public Concurrency {
+            threadPoolSize = threadPoolSize > 0 ? threadPoolSize : 20;
         }
     }
 

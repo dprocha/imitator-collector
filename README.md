@@ -45,7 +45,7 @@ Supports MongoDB server versions **3.2 through 8.x**.
 
 ## Requirements
 
-- Java 26+
+- Java 17+
 - Network access to the target MongoDB cluster
 - Maven 3.9+ (or use the included `./mvnw` wrapper) — only needed if building from source
 
@@ -852,8 +852,8 @@ The tool's raw BSON sizes are the **correct baseline for Atlas migration estimat
 
 ## Tech stack
 
-- Java 26, Spring Boot 4.0.5
-- Spring Web (embedded Tomcat + REST) with virtual threads (`spring.threads.virtual.enabled=true`)
+- Java 17, Spring Boot 4.0.5
+- Spring Web (embedded Tomcat + REST); collector concurrency runs on a bounded thread pool (`collector.concurrency.thread-pool-size`, default 20) rather than virtual threads, for Java 17 compatibility
 - SpringDoc OpenAPI 3.0.3 (Swagger UI)
 - MongoDB Java Driver 3.12.9 (server compatibility: 3.2–8.x)
 - Jackson 3.1.0 (`tools.jackson`)
@@ -885,6 +885,7 @@ All behaviour-affecting constants are overridable in `application.properties`:
 | `collector.mongo.read-timeout-seconds` | `60` | Socket read timeout |
 | `collector.mongo.server-selection-timeout-seconds` | `10` | Server selection timeout |
 | `collector.sampling.sample-size` | `50` | Documents sampled for size estimation and schema inference |
+| `collector.concurrency.thread-pool-size` | `20` | Max databases/collections collected concurrently per cluster request |
 | `collector.internal-databases[n]` | `admin,local,config` | System databases always skipped |
 | `collector.cosmosdb.system-indexes[n]` | `DocumentDBDefaultIndex_1`, `DocumentDBDefaultIndex_2dsphere` | Indexes excluded from output |
 | `collector.cosmosdb.phantom-collections[n]` | `lection` | Phantom collection names to skip |

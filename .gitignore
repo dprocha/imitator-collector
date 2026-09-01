@@ -40,3 +40,9 @@ build/
 CLAUDE.md
 .claude
 /samples
+
+### Local test secrets ###
+src/test/resources/application-test.properties
+
+### Test output artifacts ###
+/test-output/

@@ -26,8 +26,8 @@ import java.util.concurrent.Future;
 /**
  * Collects JSON schemas for all collections in a single MongoDB-compatible cluster.
  * <p>Opens one {@link com.mongodb.client.MongoClient} per request, enumerates databases,
- * and dispatches each database to {@link CollectionSchemaCollector} via virtual threads for
- * concurrent schema extraction. Internal databases and CosmosDB phantom collections are
+ * and dispatches each database to {@link CollectionSchemaCollector} on a bounded thread pool
+ * for concurrent schema extraction. Internal databases and CosmosDB phantom collections are
  * filtered out before dispatch.</p>
  *
  * @author Diego Rocha
@@ -42,6 +42,7 @@ public class ClusterSchemaCollector {
     private final CollectionSchemaCollector collectionSchemaCollector;
     private final Set<String> internalDatabases;
     private final Set<String> phantomCollections;
+    private final int threadPoolSize;
 
     public ClusterSchemaCollector(MongoConnectionFactory connectionFactory,
                                   CollectionSchemaCollector collectionSchemaCollector,
@@ -50,6 +51,7 @@ public class ClusterSchemaCollector {
         this.collectionSchemaCollector = collectionSchemaCollector;
         this.internalDatabases = properties.internalDatabasesAsSet();
         this.phantomCollections = properties.cosmosdb().phantomCollectionsAsSet();
+        this.threadPoolSize = properties.concurrency().threadPoolSize();
     }
 
     public ClusterSchema collect(ClusterInput clusterInput) throws CollectorException {
@@ -72,7 +74,10 @@ public class ClusterSchemaCollector {
         log.debug("Cluster '{}' — {} database(s) to extract schema: {}",
                 clusterInput.name(), databaseNames.size(), databaseNames);
         List<DatabaseSchema> databases = new ArrayList<>();
-        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+        // L2: ExecutorService only implements AutoCloseable since Java 19 — Java 17 needs
+        // an explicit shutdown() in a finally block instead of try-with-resources.
+        ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
+        try {
             List<Future<DatabaseSchema>> futures = databaseNames.stream()
                     .map(name -> executor.submit(() -> {
                         log.info("Extracting schema for database '{}' in cluster '{}'",
@@ -97,6 +102,8 @@ public class ClusterSchemaCollector {
                     // already logged inside the task with the database name
                 }
             }
+        } finally {
+            executor.shutdown();
         }
         return databases;
     }
@@ -105,7 +112,10 @@ public class ClusterSchemaCollector {
         List<String> collectionNames = getCollectionNames(db, clusterInput, databaseName);
         log.debug("Database '{}' — {} collection(s) to extract schema", databaseName, collectionNames.size());
         List<CollectionSchema> collections = new ArrayList<>();
-        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+        // L2: ExecutorService only implements AutoCloseable since Java 19 — Java 17 needs
+        // an explicit shutdown() in a finally block instead of try-with-resources.
+        ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
+        try {
             List<Future<CollectionSchema>> futures = collectionNames.stream()
                     .filter(name -> !name.startsWith("system."))
                     .map(name -> executor.submit(() -> {
@@ -130,6 +140,8 @@ public class ClusterSchemaCollector {
                     // already logged inside the task with the collection name
                 }
             }
+        } finally {
+            executor.shutdown();
         }
         log.info("Database '{}' schema complete — {} collections", databaseName, collections.size());
         return new DatabaseSchema(databaseName, collections);

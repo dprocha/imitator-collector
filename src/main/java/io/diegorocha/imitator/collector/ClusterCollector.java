@@ -27,7 +27,7 @@ import java.util.concurrent.Future;
  * Collects sizing statistics for a single MongoDB-compatible cluster.
  * <p>Opens one {@link com.mongodb.client.MongoClient} per request (closed via
  * try-with-resources), detects the server version via {@code buildInfo}, enumerates
- * databases, and dispatches each database to {@link DatabaseCollector} on a virtual thread
+ * databases, and dispatches each database to {@link DatabaseCollector} on a bounded thread pool
  * for concurrent collection. Internal databases ({@code admin}, {@code local}, {@code config})
  * are always excluded.</p>
  *
@@ -42,6 +42,7 @@ public class ClusterCollector {
     private final MongoConnectionFactory connectionFactory;
     private final DatabaseCollector databaseCollector;
     private final Set<String> internalDatabases;
+    private final int threadPoolSize;
 
     public record ServerVersion(String version, long major, long minor) {}
 
@@ -50,6 +51,7 @@ public class ClusterCollector {
         this.connectionFactory = connectionFactory;
         this.databaseCollector = databaseCollector;
         this.internalDatabases = properties.internalDatabasesAsSet();
+        this.threadPoolSize = properties.concurrency().threadPoolSize();
     }
 
     public ClusterOutput collect(ClusterInput clusterInput) throws CollectorException {
@@ -59,7 +61,7 @@ public class ClusterCollector {
 
             List<String> databaseNames = getDatabaseNames(client, clusterInput);
             log.debug("Cluster '{}' — databases to collect: {}", clusterInput.name(), databaseNames);
-            // M5: databases are collected concurrently using virtual threads
+            // M5: databases are collected concurrently on a bounded thread pool
             List<DatabaseOutput> databases = collectDatabasesConcurrently(client, clusterInput, databaseNames, serverVersion);
 
             ClusterStats clusterStats = buildClusterStats(databases);
@@ -81,12 +83,15 @@ public class ClusterCollector {
         }
     }
 
-    // M5: each database is collected on its own virtual thread; failures are logged and skipped
+    // M5: databases are collected on a bounded thread pool; failures are logged and skipped
     private List<DatabaseOutput> collectDatabasesConcurrently(MongoClient client, ClusterInput clusterInput,
                                                                List<String> databaseNames,
                                                                ServerVersion serverVersion) {
         List<DatabaseOutput> databases = new ArrayList<>();
-        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+        // L2: ExecutorService only implements AutoCloseable since Java 19 — Java 17 needs
+        // an explicit shutdown() in a finally block instead of try-with-resources.
+        ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
+        try {
             List<Future<DatabaseOutput>> futures = databaseNames.stream()
                     .map(name -> executor.submit(() -> {
                         log.info("Collecting database '{}' in cluster '{}'", name, clusterInput.name());
@@ -114,6 +119,8 @@ public class ClusterCollector {
                     // already logged inside the task with the database name
                 }
             }
+        } finally {
+            executor.shutdown();
         }
         return databases;
     }
