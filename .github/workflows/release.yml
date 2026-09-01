@@ -1,20 +1,44 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to release from'
+        required: true
+        default: 'main'
+        type: string
+      release_version:
+        description: 'Artifact version to release, e.g. 1.0.0-jdk17'
+        required: true
+        type: string
+      development_version:
+        description: 'Next development version, e.g. 1.0.1-jdk17-SNAPSHOT'
+        required: true
+        type: string
+      tag:
+        description: 'Git tag for this release. Leave blank to default to v<release_version>'
+        required: false
+        type: string
 
 jobs:
   release:
-    name: Build and publish release
+    name: Maven release (prepare, perform, publish)
     runs-on: ubuntu-latest
     permissions:
       contents: write
 
     steps:
-      - name: Checkout tag
+      - name: Checkout branch
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Read required Java version from pom.xml
         id: javaver
@@ -27,11 +51,35 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Build fat JAR
-        run: ./mvnw -B package -DskipTests
+      - name: Resolve tag name
+        id: tagname
+        run: |
+          TAG="${{ inputs.tag }}"
+          if [ -z "$TAG" ]; then
+            TAG="v${{ inputs.release_version }}"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      # pom.xml's <scm> block uses an SSH URL for local/developer use. The runner only has the
+      # GITHUB_TOKEN (HTTPS), so the SCM connection is overridden here at the command line rather
+      # than in the pom — release:prepare persists this override into release.properties, and
+      # release:perform (which checks out the tag fresh, per localCheckout=false) reuses it
+      # automatically without needing to be passed again.
+      - name: Maven release:prepare
+        run: |
+          ./mvnw -B release:prepare \
+            -DreleaseVersion=${{ inputs.release_version }} \
+            -DdevelopmentVersion=${{ inputs.development_version }} \
+            -Dtag=${{ steps.tagname.outputs.tag }} \
+            -DscmDeveloperConnectionUrl="scm:git:https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" \
+            -Darguments="-DskipTests"
+
+      - name: Maven release:perform
+        run: ./mvnw -B release:perform -Darguments="-DskipTests"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: target/*.jar
+          tag_name: ${{ steps.tagname.outputs.tag }}
+          files: target/checkout/target/*.jar
           generate_release_notes: true
