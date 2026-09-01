@@ -60,18 +60,12 @@ jobs:
           fi
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
-      # pom.xml's <scm> block uses an SSH URL for local/developer use. The runner only has the
-      # GITHUB_TOKEN (HTTPS), so the SCM connection is overridden here at the command line rather
-      # than in the pom — release:prepare persists this override into release.properties, and
-      # release:perform (which checks out the tag fresh, per localCheckout=false) reuses it
-      # automatically without needing to be passed again.
       - name: Maven release:prepare
         run: |
           ./mvnw -B release:prepare \
             -DreleaseVersion=${{ inputs.release_version }} \
             -DdevelopmentVersion=${{ inputs.development_version }} \
             -Dtag=${{ steps.tagname.outputs.tag }} \
-            -DscmDeveloperConnectionUrl="scm:git:https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" \
             -Darguments="-DskipTests"
 
       - name: Maven release:perform
