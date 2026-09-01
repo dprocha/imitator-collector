@@ -35,16 +35,10 @@ jobs:
           ref: ${{ inputs.branch }}
           fetch-depth: 0
 
-      - name: Configure git identity and push URL
+      - name: Configure git identity
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # pom.xml's <scm> block uses an SSH URL (git@github.com:...) for local/developer use.
-          # The runner has no SSH key, only the HTTPS-based GITHUB_TOKEN that actions/checkout
-          # already wired up as a credential header for https://github.com/. Rewriting SSH URLs
-          # to HTTPS at the git level means release-plugin's own "git push git@github.com:..."
-          # transparently goes out over HTTPS with that token, with no pom or Maven-side override.
-          git config --local url."https://github.com/".insteadOf "git@github.com:"
 
       - name: Read required Java version from pom.xml
         id: javaver

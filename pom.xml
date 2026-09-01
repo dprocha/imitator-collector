@@ -14,8 +14,8 @@
     <version>1.0.0-jdk17-SNAPSHOT</version>
 
     <scm>
-        <connection>scm:git:git@github.com:dprocha/imitator-collector.git</connection>
-        <developerConnection>scm:git:git@github.com:dprocha/imitator-collector.git</developerConnection>
+        <connection>scm:git:https://github.com/dprocha/imitator-collector.git</connection>
+        <developerConnection>scm:git:https://github.com/dprocha/imitator-collector.git</developerConnection>
         <url>https://github.com/dprocha/imitator-collector</url>
         <tag>HEAD</tag>
     </scm>
