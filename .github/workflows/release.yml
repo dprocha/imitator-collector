@@ -16,10 +16,14 @@ jobs:
       - name: Checkout tag
         uses: actions/checkout@v4
 
-      - name: Set up Java 26
+      - name: Read required Java version from pom.xml
+        id: javaver
+        run: echo "version=$(grep -oPm1 '(?<=<java.version>)[^<]+' pom.xml)" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          java-version: '26'
+          java-version: ${{ steps.javaver.outputs.version }}
           distribution: 'temurin'
           cache: 'maven'
 
